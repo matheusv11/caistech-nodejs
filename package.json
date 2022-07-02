@@ -6,7 +6,8 @@
   "author": "matheusv11 <mathsales360@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon ./src/index.js"
+    "dev": "nodemon ./src/index.js",
+    "vercel-build": "node ./build.js && prisma db push --schema=./prisma/productionSchema.prisma"
   },
   "dependencies": {
     "@prisma/client": "^4.0.0",
