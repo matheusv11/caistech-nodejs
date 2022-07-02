@@ -11,6 +11,7 @@ const tokenValidador = require('./middlewares/tokenValidador');
 router.post('/autenticar', autenticacaoController.autenticar)
 
 router.get('/usuario', usuarioController.get)
+router.get('/usuario-unico/:usuarioId', usuarioController.getUsuarioUnico)
 router.post('/criar-usuario', usuarioController.create)
 
 router.patch('/atualizar-usuario', tokenValidador.validarToken, usuarioController.update)

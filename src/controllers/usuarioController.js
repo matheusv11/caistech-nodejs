@@ -7,8 +7,36 @@ const { hashSync: hash } = require('bcrypt')
 module.exports = {
     // BUSCAR POR QUERY E POR PARAMS
     async get(req, res) {
-        const usuarios = await prisma.usuario.findMany()
+        const { nome, email } = req.query;
+
+        const usuarios = await prisma.usuario.findMany({
+            where: {
+                nome: {
+                    contains: nome 
+                },
+                email: {
+                    contains: email
+                }
+            }
+        })
+
         return res.status(200).send(usuarios)
+    },
+
+    async getUsuarioUnico(req, res) {
+        const usuarioId = req.params.usuarioId;
+
+        const usuario = await prisma.usuario.findUnique({
+            where: {
+                id: parseInt(usuarioId)
+            }
+        })
+
+        if(!usuario) {
+            return res.status(404).send({ erro: "Usuário não encontrado"})
+        }
+
+        return res.status(200).send(usuario)
     },
 
     async create(req, res) {
