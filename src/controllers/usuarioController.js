@@ -3,6 +3,7 @@
 const { PrismaClient } = require("@prisma/client")
 const prisma = new PrismaClient()
 const { hashSync: hash } = require('bcrypt')
+const enviarEmail = require('../utils/mailer')
 
 module.exports = {
     // BUSCAR POR QUERY E POR PARAMS
@@ -114,6 +115,56 @@ module.exports = {
         })
 
         return res.status(200).send({ mensagem: "Usuário deletado com sucesso"});
+
+    },
+
+    async solicitarSenha(req, res) {
+        const { email } = req.body;
+
+        const usuario = await prisma.usuario.findFirst({
+            where: {
+                email
+            }
+        });
+
+        if(!usuario) {
+            return res.status(404).send({ erro: "Usuário não encontrado"})
+        }
+
+        enviarEmail(usuario.id)
+
+        return res.status(200).send("O link de recuperação foi enviado para seu email")
+
+
+    },
+
+    
+    async recuperarSenha(req, res) {
+        const { senha } = req.body;
+        const usuarioId = res.locals.usuarioId
+
+        const usuario = await prisma.usuario.findUnique({
+            where: {
+                id: usuarioId
+            }
+        });
+
+        if(!usuario) {
+            return res.status(404).send({ erro: "Usuário não encontrado"})
+        }
+
+        const senhaCriptografada = hash(senha, 10);
+
+        await prisma.usuario.update({
+            data: {
+                senha: senhaCriptografada
+            },
+            where: {
+                id: usuarioId
+            }
+        })
+
+        return res.status(200).send("Senha alterada com sucesso")
 
     }
 
